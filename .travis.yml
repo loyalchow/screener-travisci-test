@@ -1,0 +1,24 @@
+language: node_js
+node_js:
+  - "0.10"
+
+addons:
+  hosts:
+    - ci.server
+
+install:
+  - npm install
+  # Install Screener CI Script
+  - wget https://s3-us-west-2.amazonaws.com/screener-files/ci/v2/screener-ci.zip
+  - unzip screener-ci.zip
+  # Install Screener Tunnel Client
+  - wget https://s3-us-west-2.amazonaws.com/screener-files/screener-tunnel/screener-tunnel-client-linux-amd64.zip
+  - unzip screener-tunnel-client-linux-amd64.zip
+
+script:
+  # start tunnel
+  - ./screener-tunnel-client -apikey="$SCREENER_API_KEY" -host="ci.server:8080" &
+  # start server
+  - npm start &
+  # run screener tests
+  - ./screener-ci.sh $SCREENER_API_KEY $SCREENER_GROUP_ID $TRAVIS_BUILD_NUMBER

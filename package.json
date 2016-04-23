@@ -1,0 +1,10 @@
+{
+  "name": "screener-travisci-test",
+  "version": "0.0.1",
+  "scripts": {
+    "start": "http-server ./site"
+  },
+  "dependencies": {
+    "http-server": "~0.9.0"
+  }
+}
