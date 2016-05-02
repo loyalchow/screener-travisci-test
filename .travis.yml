@@ -2,10 +2,6 @@ language: node_js
 node_js:
   - "0.10"
 
-addons:
-  hosts:
-    - ci.server
-
 install:
   - npm install
   # Install Screener CI Script
@@ -16,9 +12,13 @@ install:
   - unzip screener-tunnel-client-linux-amd64.zip
 
 script:
+  # get current branch (why?: https://graysonkoonce.com/getting-the-current-branch-name-during-a-pull-request-in-travis-ci/)
+  - export PR=https://api.github.com/repos/$TRAVIS_REPO_SLUG/pulls/$TRAVIS_PULL_REQUEST
+  - export BRANCH=$(if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then echo $TRAVIS_BRANCH; else echo `curl -s $PR | jq -r .head.ref`; fi)
   # start tunnel
-  - ./screener-tunnel-client -apikey="$SCREENER_API_KEY" -host="ci.server:8080" &
+  - ./screener-tunnel-client -apikey="$SCREENER_API_KEY" -host="$BRANCH.127.0.0.1.xip.io:8080" &
   # start server
   - npm start &
-  # run screener tests
+  # run tests
+  - npm test
   - ./screener-ci.sh $SCREENER_API_KEY $SCREENER_GROUP_ID $TRAVIS_BUILD_NUMBER
